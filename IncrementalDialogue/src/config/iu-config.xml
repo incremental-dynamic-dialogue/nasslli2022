@@ -1,0 +1,196 @@
+   <!--
+   The IU module configuration, defining components in terms of their Java class and properties.
+   Each component defines to which downstream modules they make their output IUs available to on their right buffer through the propertylist 'hypChangeListeners'.
+   --> 
+    
+   <property name="baseData" value="baseData" />
+    
+    <!-- 
+    
+    	ASR
+    
+     -->
+     
+     <property name="language" value="en-US"/>
+     
+     <component name="currentASRHypothesis" type="inpro.incremental.source.SphinxASR"> 
+        <property name="frontend" value="${frontend}" />
+        <property name="asrFilter" value="${deltifier}" />
+        <property name="brutalPruner" value="trivialPruner"/>
+        <property name="baseData" value="${baseData}" />
+        <propertylist name="hypChangeListeners">
+        	<item>printer</item>
+        	<!--<item>ASRanalyzer</item>-->
+        	  <item>NLU</item>
+        </propertylist>
+    </component> 
+   
+
+    <component name="googleASR" type="inpro.incremental.source.GoogleASR">
+        <!--<property name="apiKey" value="AIzaSyAwGYGBv_fbmkbW4ghbr_iUiiylXj15-YI"/>-->
+        <property name="apiKey" value="AIzaSyDXOjOCiM7v0mznDF1AWXXoR1ehqLeIB18"/>
+        <!--<property name="apiKey" value="AIzaSyCDOkjKVuIKkMM_oic5gty7t91CWw8Y6ws"/>-->
+        <!--<property name="apiKey" value="AIzaSyAP-uZb-zQWfoYMiJdI7xk9koneoQE6ED4"/>-->
+        <!--<property name="apiKey" value="AIzaSyAGjjX-cusL8V7GZ_9H-1cHtVoWv9Naf4w"/>-->
+        <property name="samplingRate" value="16000"/>
+        <property name="lang" value="${language}"/>
+        <property name="frontend" value="${frontend}"/>
+        <propertylist name="hypChangeListeners">
+        </propertylist>
+    </component>
+    
+    <!-- 
+    
+    	ASR Support
+    		
+     -->
+     
+     <component name="eotFeatureAggregator" type="inpro.features.EOTFeatureAggregator">
+        <property name="pitchWindows" value="5 10 20 50"/>
+        <property name="energyWindows" value="5 10 20 50"/>
+        <property name="vEnergyWindows" value="5 10 20 50"/>
+        <property name="timeIntoAudio" value="false"/>
+        <property name="includeFrameCount" value="false"/>
+    </component>
+
+    <component name="baseData" type="inpro.incremental.basedata.BaseData">
+        <property name="eotFeatureAggregator" value="eotFeatureAggregator"/>
+    </component>
+    
+     <component name="dispatchStream" type="inpro.audio.DispatchStream">
+	<property name="sendSilence" value="true"/>
+     </component> 
+   
+    <component name="textBasedFloorTracker" type="inpro.incremental.processor.TextBasedFloorTracker" />
+   
+    <property name="deltifier" value="none" />
+    <property name="deltifierParam" value="0"/>
+    <property name="baseData" value="baseData" />
+    <component name="none" type="inpro.incremental.deltifier.ASRWordDeltifier"/>
+
+    <component name="ASRanalyzer" type="module.asr.ASRprinter">
+         <propertylist name="hypChangeListeners">
+        </propertylist>
+    </component>
+
+    
+   <!--
+    
+       Simple general purpose modules
+    
+    -->
+    
+        
+    <component name="printer" type="module.util.PrintModule">
+        <propertylist name="hypChangeListeners">
+        </propertylist>
+    </component>
+    
+    
+    <!-- 
+    
+         Computer Vision/Comms modules - under development
+    
+    -->
+   
+    <!--
+    <component name="sceneListener" type="module.comms.ROSSubscriber">
+        <property name="id" value="listener"/>
+        <property name="scope" value="opencv/objects"/>
+	    <propertylist name="hypChangeListeners">
+	    	<item>sceneUpdater</item>       
+	    </propertylist>
+    </component>
+    
+    <component name="sceneUpdater" type="module.vision.SceneUpdater">
+        <property name="resolver" value="wac" />
+        <property name="time_out" value="2" />
+        <property name="number_of_objects" value="${number_of_objects}"/>
+        <property name="bottom_right_x" value="${bottom_right_x}"/>
+        <property name="bottom_right_y" value="${bottom_right_y}"/>
+        <property name="top_left_x" value="${top_left_x}"/>
+        <property name="top_left_y" value="${top_left_y}"/>
+	    <propertylist name="hypChangeListeners">
+	    	<item>referenceInformer</item>
+	    </propertylist>
+    </component> 
+    -->
+    
+    <!--
+    
+     NLU/parsing
+    
+    -->
+    
+ 
+     <!--A simple DS-TTR parsing module which just parses every word-->
+     <property name="grammar" value="2015-english-ttr-robot"/> <!-- name of the DS-TTR folder -->
+  
+  <!--  
+     <component name="NLU" type="module.nlu.NLUparserDSTTR">
+   	<property name="grammar" value="${grammar}"/>
+   	<property name="language" value="${language}"/>
+        <propertylist name="hypChangeListeners">
+        </propertylist>
+    </component>
+    -->
+
+  
+    <component name="NLU" type="module.nlu.NLUnumbers">
+   	<property name="grammar" value="${grammar}"/>
+   	<property name="language" value="${language}"/>
+        <propertylist name="hypChangeListeners">
+        <item>DM</item> 
+        </propertylist>
+    </component>
+ 
+   
+    
+    <!--
+    
+     Robot/HRI model - under development
+    
+    -->
+     <!-- 
+     <property name="user_state_machine_file" value="resources/statemachine-models/UserHarelSM_C.csv"/>
+     <component name="NLU" type="module.nlu.UserDev">
+        <property name="WAC" value="wac"/>
+        <property name="incremental" value="true"/>
+        <property name="threshold" value="${threshold}"/>
+        <property name="state_machine_file" value="${user_state_machine_file}"/>
+        <property name="grammar" value="${grammar}"/>
+        <property name="language" value="${language}"/>
+        <property name="robot" value="robot"/> 
+        <property name="scene" value="sceneUpdater"/>
+	<propertylist name="hypChangeListeners">
+	    	<item>printer</item>
+	    	<item>robot</item>
+	    	<item>wac</item>
+	        <item>dm_p</item>
+	        <item>referenceInformer</item>
+	 </propertylist>
+     </component>
+    -->
+   
+        
+    <!--
+    
+     DM
+    
+     -->
+     <component name="DM" type="module.dm.DialogueManagerNumbers"> 
+	<propertylist name="hypChangeListeners">
+ 	   <item>generation</item> 
+	</propertylist>
+     </component> 
+
+    <!--
+    
+     NLG/Synthesis
+    
+     -->
+    
+    <component name="generation" type="module.tts.Synthesizer"> 
+	    <propertylist name="hypChangeListeners">
+	    </propertylist>
+    </component>  

@@ -1,0 +1,7 @@
+package module.nlu;
+
+public enum UserGroundingState {
+	USER_UNCOMMITTED, USER_SHOWING_COMMITMENT_TO_GOAL, USER_REPAIRING_ROBOT_ACTION,
+	USER_COMMITTED
+
+}

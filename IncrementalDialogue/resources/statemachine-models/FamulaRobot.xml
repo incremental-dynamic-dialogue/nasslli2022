@@ -1,0 +1,321 @@
+<HSM final="stopped" initial="startup" module="hsm">
+	<VAR targetOnReady="root">
+		<include href="../../generic/hsm/startup.hsm"/>
+		<STATE name="startup">
+			<ONEXIT>
+				<!-- change viewer settings -->
+				<SEND>
+					<EVENT name="RobotServerSettings">
+						<VIEWER>
+							<CAMERA>
+								<POS>0, 240, 80</POS>
+								<FOCALPOINT>0, 85, 50 </FOCALPOINT>
+								<VIEWUP>0, -0.21, 0.98</VIEWUP>
+								<VIEWANGLE>40</VIEWANGLE>
+							</CAMERA>
+						</VIEWER>
+					</EVENT>
+				</SEND>
+			</ONEXIT>
+		</STATE>
+	</VAR>
+
+	<CONCURRENTSTATE  name="root">
+		
+
+		<EVENT alias="ArmServer:error"
+		       xpath="/EVENT[@sender='ArmServer' and @name='error' and not(@interrupted)]"/>
+
+		<REGION name="main" initial="idle:curious" final="stopped">
+			
+			<EVENT internal="true" alias="start" />
+			<EVENT internal="true" alias="resolve_object" />
+			<EVENT internal="true" alias="resolve_target" />
+			<EVENT internal="true" alias="task_resolved" />
+			<EVENT internal="true" alias="done" />
+			<EVENT alias="ArmServer:refPose"
+			       xpath="/EVENT[@sender='ArmServer' and @name='finished' and @id='refPose']"/>
+
+			<EVENT alias="reset" actions="INSERT" xpath="/speech_hyp//command/reset"/>
+
+			<ONENTRY>
+				<!-- request home pose for both arms -->
+				<SEND>
+					<EVENT name="RobotServerCommands" immediately="true">
+						<SELECT id="LeftArm"/>
+						<jointLimits>
+							<min units="deg"> +35  10 -174 -137 -255 -100 -255</min>
+							<max units="deg">+177 +90 +174  -10 +255  -10 +255</max>
+						</jointLimits>
+						<notify id="refPose">
+							<POS/>
+							<EULER units="deg"/>
+						</notify>
+						<SELECT id="RightArm"/>
+						<jointLimits>
+							<min units="deg">   0  +10  -174 -137 -255 -100 -255</min>
+							<max units="deg">+165  +90  +174  -10 +255  -10 +255</max>
+						</jointLimits>
+						<notify id="refPose">
+							<POS/>
+							<EULER units="deg"/>
+						</notify>
+					</EVENT>
+				</SEND>
+			</ONENTRY>
+
+			<ONEVENT alias="reset">
+				<TRANSITION target="startup"/>
+			</ONEVENT>
+
+			<ONEVENT alias="ArmServer:error">
+				<!-- handle critical errors -->
+				
+			</ONEVENT>
+
+			<ONEVENT alias="ArmServer:refPose">
+				
+			</ONEVENT>
+
+			<STATE name="idle">
+				<ONENTRY>
+					<STARTTIMER name="timer" time="3s"/>
+				</ONENTRY>
+
+				<ONEVENT alias="timer">
+					
+					<!-- tell the dialog to reset its state, aborting all dangling tasks -->
+					<INSERT>
+						<speech_hyp stable="1">
+							<STATUS value="initiated" origin="Submitter"/>
+							<grammartree>
+								<command>
+									<silentreset/>
+								</command>
+							</grammartree>
+						</speech_hyp>
+					</INSERT>
+				</ONEVENT>
+
+				<STATE name="curious">
+					<ONENTRY><SEND alias="start"/></ONENTRY>
+					<ONEVENT alias="start">
+						<TRANSITION target="grasp:idle:emptyHand"/>
+					</ONEVENT>
+				</STATE>
+
+			</STATE>
+
+			<STATE name="processing">
+				<EVENT alias="pick:noSQ" actions="INSERT"
+				       xpath="/PICK[STATUS/@value='initiated' and object and not(sq_result)]"/>
+				<EVENT alias="sq:result" actions="INSERT|UPDATE"
+				       xpath="/sqfit_request[STATUS/@origin='Handler']"/>
+
+				<EVENT alias="pick:failed" actions="UPDATE"  xpath="/PICK[STATUS/@value='failed']"/>
+				<EVENT alias="place:failed" actions="UPDATE" xpath="/PLACE[STATUS/@value='failed']"/>
+				<EVENT alias="lostObject" actions="INSERT" xpath="/EVENT[@name='lostObject']"/>
+				<TIMER name="sq:timeout"/>
+
+				<ONEVENT alias="done">
+					<TRANSITION history_of="idle"/>
+				</ONEVENT>
+
+				<ONEVENT alias="pick:noSQ">
+					
+					<TRANSITION target="exec"/>
+				</ONEVENT>
+
+				<ONEVENT alias="sq:timeout">
+					<SAY>"Superquadrics request not responding. Please check."</SAY>
+					<TRANSITION history_of="idle"/>
+				</ONEVENT>
+
+				<ONEVENT alias="lostObject">
+					
+					<TRANSITION history_of="idle"/>
+				</ONEVENT>
+
+				<STATE name="exec">
+					<EVENT alias="outofsight" actions="INSERT"
+								 xpath="/EVENT[@sender='ArmServer' and @name='finished' and @id='outofsight']"/>
+
+					<ONENTRY>
+						
+          				</ONENTRY>
+
+					<ONEVENT alias="sq:result">
+
+					</ONEVENT>
+					<ONEVENT alias="outofsight">
+						
+					</ONEVENT>
+
+					<EVENT alias="PICK:completed" actions="INSERT|UPDATE"
+								 xpath="/PICK[STATUS/@value='completed']" />
+					<EVENT alias="PLACE:completed" actions="INSERT|UPDATE"
+								 xpath="/PLACE[STATUS/@value='completed']" />
+
+					<ONEVENT alias="PICK:completed">
+						<TRANSITION target="placePos"/>
+					</ONEVENT>
+					<ONEVENT alias="PLACE:completed">
+						
+					</ONEVENT>
+
+					<ONEVENT alias="pick:failed">
+						
+					</ONEVENT>
+					<ONEVENT alias="place:failed">
+						
+					</ONEVENT>
+
+					<STATE name="placePos">
+						<!--
+								In this state we wait for the result of /place_pos_request from vision
+								If we get it, we should transition back to exec again and trigger the actual PLACE
+						-->
+						<EVENT alias="placePos" actions="INSERT|UPDATE"
+									 xpath="/place_pos_request[STATUS/@value!='initiated']" />
+						<EVENT alias="placePosReq" actions="INSERT"
+									 xpath="/place_pos_request[STATUS/@value='init']" />
+
+						<ONEVENT alias="start">
+							
+						</ONEVENT>
+
+						<ONEVENT alias="placePos">
+							
+						</ONEVENT>
+
+						<ONEVENT alias="outofsight">
+							
+						</ONEVENT>
+
+						<ONEVENT alias="placePosReq">
+						
+						</ONEVENT>
+					</STATE>
+				</STATE>
+				<ONEXIT>
+				
+				</ONEXIT>
+			</STATE>
+
+			<STATE name="stopped"/>
+
+		</REGION>
+
+		<REGION name="grasp" initial="idle" final="stopped" ownDict="true">
+			<VAR HAND_CMD_MEMORY="xcf:ShortTerm">
+				<include href="../../generic/hsm/pick+place.hsm" />
+			</VAR>
+			<EVENT alias="stop" actions="INSERT" xpath="/speech_hyp//command/stop|/command/stop"/>
+			<STATE name="busy">
+				<ONEVENT alias="stop">
+					
+				</ONEVENT>
+
+				<STATE name="picking">
+					<STATE name="grasp">
+						<ONEVENT alias="ArmServer:error">
+							<!-- ignore error during lifting and try to place anyway -->
+							<TRANSITION target="idle:haveObject"/>
+							<ACTIONS label="CompletedTask"/>
+						</ONEVENT>
+					</STATE>
+				</STATE>
+
+				<STATE name="placing">
+					<STATE name="reach">
+						<!-- ignore error during placing -->
+						<ONEVENT alias="ArmServer:error" override="yes">
+							
+						</ONEVENT>
+					</STATE>
+				</STATE>
+			</STATE>
+			<STATE name="idle">
+				<ONEVENT alias="stop">
+					<SAY>"I'm not moving. What should I stop?"</SAY>
+				</ONEVENT>
+			</STATE>
+		</REGION>
+
+		<REGION name="human" initial="no" final="stopped">
+			
+			<EVENT alias="pointing:yes" actions="INSERT" xpath="/pointing[@inSpace='true' and not(object)]"/>
+			<EVENT alias="pointing:no"  actions="INSERT" xpath="/pointing[@inSpace='false' and not(object)]"/>
+			<EVENT alias="pointing:take" actions="INSERT" xpath="/pointing[@inSpace='true' and object]"/>
+			<EVENT alias="task:take" actions="INSERT"
+			       xpath="/user_task[@type='take' and STATUS/@value='initiated']"/>
+			<TIMER name="timer"/>
+
+<!-- Taking stuff isn't well tested.
+			<ONEVENT alias="pointing:take">
+				<TRANSITION target="yes:take"/>
+			</ONEVENT>
+			<ONEVENT alias="task:take">
+				<PYTHON>
+rejectTask("Sorry, I cannot recognize the object in your hand. Please come closer and ask again.")
+				</PYTHON>
+			</ONEVENT>
+-->
+			<STATE name="no">
+				<ONENTRY>
+					
+				</ONENTRY>
+
+				<ONEVENT alias="pointing:yes">
+					<TRANSITION target="yes"/>
+				</ONEVENT>
+				<ONEVENT alias="pointing:no"/>
+			</STATE>
+
+			<STATE name="yes">
+				<ACTIONS label="inPointing">
+					<STOPTIMER name="timer"/>
+					
+				</ACTIONS>
+
+				<ONENTRY>
+					<ACTIONS label="inPointing"/>
+				</ONENTRY>
+				<ONEVENT alias="pointing:yes">
+					<ACTIONS label="inPointing"/>
+				</ONEVENT>
+
+				<ONEVENT alias="pointing:no">
+					<STARTTIMER name="timer" time="0.2s"/>
+				</ONEVENT>
+
+				<ONEVENT alias="timer">
+					<TRANSITION target="no"/>
+				</ONEVENT>
+
+				<STATE name="take">
+					<EVENT alias="dialog:agree" actions="INSERT|UPDATE"
+					       xpath="/dialog_ask[STATUS/@value='completed' and @answer='agree']"/>
+
+					<ONENTRY>
+						
+						<STARTTIMER name="timerTake" time="0s"/>
+					</ONENTRY>
+
+					<ONEVENT alias="timerTake">
+						
+					</ONEVENT>
+
+					<ONEVENT alias="dialog:agree">
+						
+					</ONEVENT>
+
+					<ONEVENT alias="pointing:take"/>
+				</STATE>
+			</STATE>
+
+			<STATE name="stopped"/>
+		</REGION>
+	</CONCURRENTSTATE>
+	<STATE name="stopped" />
+</HSM>
