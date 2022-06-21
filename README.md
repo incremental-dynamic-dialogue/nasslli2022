@@ -20,8 +20,8 @@ http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.h
 2. Get the dependent repos
 * git clone the following two repositories from bitbucket onto your local machine:
 
-```https://bitbucket.org/dylandialoguesystem/dsttr.git
-https://bitbucket.org/dylandialoguesystem/dylan_util.git```
+https://bitbucket.org/dylandialoguesystem/dsttr.git
+https://bitbucket.org/dylandialoguesystem/dylan_util.git
 
 
 3. Import the project into Eclipse and build it.
