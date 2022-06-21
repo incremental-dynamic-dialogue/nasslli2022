@@ -29,7 +29,7 @@ https://bitbucket.org/dylandialoguesystem/dylan_util.git
 
 * Import the dsttr projects and dylan_util repos as existing projects into Eclipse in the same way.
 
-* Make sure there are no errors (denoted by red marks). You can click on the "Problems" tab to see where the problems are. Make sure all the libraries are included in the project. To do that, click on Project -> Properties -> Java Build Path -> Libraries -> (select jar files in the lib folder).
+* Make sure there are no errors (denoted by red marks) by expanding the packages in your Package Explorer browser, particularly the src/ folder. You can click on the "Problems" tab to see where the problems are. Make sure all the libraries are included in the project. To do that, click on Project -> Properties -> Java Build Path -> Libraries -> (select jar files in the lib folder).
 
 4. Try running the Google ASR based numbers application from the microphone:
 * Go to src/app/DialogueSystemGoogleASR.java
