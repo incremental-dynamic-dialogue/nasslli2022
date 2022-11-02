@@ -178,7 +178,7 @@ public class WorldBeliefParser {
 		// Initialize new WorldBeliefParser
 		WorldBeliefParser parser = new WorldBeliefParser();
 		// Get the XML input from a file
-		BufferedReader br = new BufferedReader(new FileReader("resources/XMLWorldBelief_2017-07-25_15-23-38.xml"));
+		BufferedReader br = new BufferedReader(new FileReader("resources/sample-images/famula/XMLWorldBelief_2017-07-25_15-23-38.xml"));
 		List<String> objectTexts = new ArrayList<String>();
 		try {
 			String input = "";

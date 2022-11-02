@@ -30,6 +30,7 @@ import inpro.incremental.source.IUDocument;
 import inpro.incremental.source.SphinxASR;
 import inpro.incremental.unit.EditMessage;
 import inpro.incremental.unit.IU;
+import module.comms.ROSSubscriber;
 
 public class DialogueSystemTypedInput {
 	
@@ -91,6 +92,9 @@ public class DialogueSystemTypedInput {
 		iuDocument = new IUDocument();
 		iuDocument.setListeners(hypListeners);
 		SimpleText.createAndShowGUI(hypListeners, textBasedFloorTracker);
+		
+		ROSSubscriber ros = (ROSSubscriber) cm.lookup("sceneListener");
+		ros.iulisteners = cm.getPropertySheet("sceneListener").getComponentList(SphinxASR.PROP_HYP_CHANGE_LISTENERS, PushBuffer.class);
 		
         
 	

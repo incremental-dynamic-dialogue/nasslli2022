@@ -93,7 +93,7 @@
     
     -->
    
-    <!--
+    
     <component name="sceneListener" type="module.comms.ROSSubscriber">
         <property name="id" value="listener"/>
         <property name="scope" value="opencv/objects"/>
@@ -102,7 +102,9 @@
 	    </propertylist>
     </component>
     
+    
     <component name="sceneUpdater" type="module.vision.SceneUpdater">
+    	<property name="scene_representation_format"
         <property name="resolver" value="wac" />
         <property name="time_out" value="2" />
         <property name="number_of_objects" value="${number_of_objects}"/>
@@ -111,10 +113,10 @@
         <property name="top_left_x" value="${top_left_x}"/>
         <property name="top_left_y" value="${top_left_y}"/>
 	    <propertylist name="hypChangeListeners">
-	    	<item>referenceInformer</item>
+	    	<!--  <item>referenceInformer</item> -->
 	    </propertylist>
     </component> 
-    -->
+    
     
     <!--
     
@@ -126,16 +128,17 @@
      <!--A simple DS-TTR parsing module which just parses every word-->
      <property name="grammar" value="2015-english-ttr-robot"/> <!-- name of the DS-TTR folder -->
   
-  <!--  
+    
      <component name="NLU" type="module.nlu.NLUparserDSTTR">
    	<property name="grammar" value="${grammar}"/>
    	<property name="language" value="${language}"/>
         <propertylist name="hypChangeListeners">
         </propertylist>
     </component>
-    -->
+    
 
   
+    <!--
     <component name="NLU" type="module.nlu.NLUnumbers">
    	<property name="grammar" value="${grammar}"/>
    	<property name="language" value="${language}"/>
@@ -143,7 +146,7 @@
         <item>DM</item> 
         </propertylist>
     </component>
- 
+    -->
    
     
     <!--
@@ -151,8 +154,8 @@
      Robot/HRI model - under development
     
     -->
-     <!-- 
-     <property name="user_state_machine_file" value="resources/statemachine-models/UserHarelSM_C.csv"/>
+      
+    <!-- <property name="user_state_machine_file" value="resources/statemachine-models/UserHarelSM_C.csv"/>
      <component name="NLU" type="module.nlu.UserDev">
         <property name="WAC" value="wac"/>
         <property name="incremental" value="true"/>
@@ -162,15 +165,15 @@
         <property name="language" value="${language}"/>
         <property name="robot" value="robot"/> 
         <property name="scene" value="sceneUpdater"/>
-	<propertylist name="hypChangeListeners">
-	    	<item>printer</item>
+	<propertylist name="hypChangeListeners"> -->
+	    	<!--  <item>printer</item>
 	    	<item>robot</item>
 	    	<item>wac</item>
 	        <item>dm_p</item>
-	        <item>referenceInformer</item>
-	 </propertylist>
-     </component>
-    -->
+	        <item>referenceInformer</item>-->
+	<!-- </propertylist>
+     </component> -->
+    
    
         
     <!--

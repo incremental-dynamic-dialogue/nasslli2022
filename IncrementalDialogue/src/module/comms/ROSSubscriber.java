@@ -36,7 +36,7 @@ public class ROSSubscriber extends ListenerModule {
 		BufferedReader br;
 		String xmlInput = "";
 		try {
-			br = new BufferedReader(new FileReader("resources/XMLWorldBelief_2017-07-25_15-23-38.xml"));
+			br = new BufferedReader(new FileReader("resources/sample-images/famula/XMLWorldBelief_2017-07-25_15-23-38.xml"));
 			String input = "";
 			String line = br.readLine();
 			while (line != null) {
@@ -49,6 +49,8 @@ public class ROSSubscriber extends ListenerModule {
 		} catch (Exception e) {
 			logger.error("Error reading from file");
 		}
+		logger.info("Sending + " + xmlInput);
+		System.out.println("Sending + " + xmlInput);
 		this.process(xmlInput);
 		
 	}

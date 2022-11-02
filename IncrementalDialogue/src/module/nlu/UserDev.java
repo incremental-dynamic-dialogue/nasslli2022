@@ -138,9 +138,7 @@ public class UserDev extends User {
 				String word = iu.toPayLoad();
 				switch (edit.getType()) {
 					case ADD:
-						logger.debug(System.currentTimeMillis() + "," + word +","+edit.getType().toString()+","+iu.getID());
-						logger.info("adding " + edit.getIU().toPayLoad());
-						this.processAddedWordIU((WordIU) iu); 
+						//be more cautious for now
 						break;
 					case REVOKE:
 						logger.debug(System.currentTimeMillis() + "," + word +","+edit.getType().toString()+","+iu.getID());
@@ -149,6 +147,9 @@ public class UserDev extends User {
 						this.processRevokedWordIU((WordIU) iu);
 						break;
 					case COMMIT:
+						logger.debug(System.currentTimeMillis() + "," + word +","+edit.getType().toString()+","+iu.getID());
+						logger.info("adding " + edit.getIU().toPayLoad());
+						this.processAddedWordIU((WordIU) iu); 
 						break;
 					default:
 						break;
