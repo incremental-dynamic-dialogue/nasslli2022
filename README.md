@@ -20,8 +20,8 @@ http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.h
 2. Get the dependent repos
 * git clone the following two repositories from bitbucket onto your local machine:
 
-```https://bitbucket.org/dylandialoguesystem/dsttr.git
-https://bitbucket.org/dylandialoguesystem/dylan_util.git```
+https://bitbucket.org/dylandialoguesystem/dsttr.git
+https://bitbucket.org/dylandialoguesystem/dylan_util.git
 
 
 3. Import the project into Eclipse and build it.
@@ -42,7 +42,7 @@ It can take up to 30 seconds before the system is ready to respond, so have a cu
 * (Alternative to whole of step 4) If you are having problems with the ASR input, you can try a simple text input system by running ```src/app/DialogueSystemTypedInput.java```
 
 
-5. Change the module architecture with ````iu_config.xml```
+5. Change the module architecture with ```iu_config.xml```
 * Look at ```src/config/iu_config.xml``` file. That is where the architecture is determined. Try to work out what is going on.
 * To experiment with modifying the output buffer of the ASR module (and therefore the configuration of the whole system's network) can make a simpler app than those tried above which simply prints out the current ASR hypotheses to the terminal, by commenting out all connecting modules from the "currentASRHypothesis" module's hypChangeListeners list to its right buffer, i.e. set it to:
 
